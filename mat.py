@@ -24,7 +24,7 @@ def equal(A, B):
     True
     """
     assert A.D == B.D
-    return A.D[0] == B.D[0] && A.D[1] == B.D[1] && A.f = B.f
+    return A.D[0] == B.D[0] and A.D[1] == B.D[1] and A.f == B.f
 
 def getitem(M, k):
     """
@@ -36,7 +36,7 @@ def getitem(M, k):
     0
     """
     assert k[0] in M.D[0] and k[1] in M.D[1]
-    return M.f[(k[0], k[1])]
+    return M.f.get((k[0], k[1]), 0)
 
 def setitem(M, k, val):
     """
