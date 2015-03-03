@@ -4,8 +4,10 @@ coursera = 1
 
 from mat import Mat
 from vec import Vec
-
-
+from matutil import mat2coldict
+from matutil import mat2rowdict
+from matutil import coldict2mat
+from matutil import rowdict2mat
 
 ## 1: (Problem 4.17.1) Computing matrix-vector products
 # Please represent your solution vectors as lists.
@@ -151,8 +153,7 @@ def lin_comb_mat_vec_mult(M, v):
     True
     '''
     assert(M.D[1] == v.D)
-    return Vec(M.D[0], {r:sum([M[r,c]*v[c] for c in M.D[1]]) for r in M.D[0]})
-
+    return sum([v[k]*vec for (k, vec) in mat2coldict(M).items()])
 
 ## 11: (Problem 4.17.14) Linear-combinations vector-matrix multiply
 def lin_comb_vec_mat_mult(v, M):
@@ -175,8 +176,7 @@ def lin_comb_vec_mat_mult(v, M):
       True
     '''
     assert(v.D == M.D[0])
-    pass
-
+    return sum([v[k]*vec for (k, vec) in mat2rowdict(M).items()])
 
 
 ## 12: (Problem 4.17.15) dot-product matrix-vector multiply
@@ -198,7 +198,7 @@ def dot_product_mat_vec_mult(M, v):
     True
     '''
     assert(M.D[1] == v.D)
-    pass
+    return Vec(M.D[0], {k:v*vec for (k,vec) in mat2rowdict(M).items()})
 
 
 
@@ -220,7 +220,7 @@ def dot_product_vec_mat_mult(v, M):
       True
       '''
     assert(v.D == M.D[0])
-    pass
+    return Vec(M.D[1], {k:v*vec for (k,vec) in mat2coldict(M).items()})
 
 
 
@@ -228,14 +228,14 @@ def dot_product_vec_mat_mult(v, M):
 # You are also allowed to use the matutil module
 def Mv_mat_mat_mult(A, B):
     assert A.D[1] == B.D[0]
-    pass
+    return coldict2mat({k:lin_comb_mat_vec_mult(A, vec) for (k,vec) in mat2coldict(B).items()})
 
 
 
 ## 15: (Problem 4.17.18) Vector-matrix matrix-matrix multiply
 def vM_mat_mat_mult(A, B):
     assert A.D[1] == B.D[0]
-    pass
+    return rowdict2mat({k:lin_comb_vec_mat_mult(vec, B) for (k, vec) in mat2rowdict(A).items()})
 
 
 
@@ -256,28 +256,29 @@ def button_vectors(n):
 
 b1=Vec(D(9),{(7, 8):one,(7, 7):one,(6, 2):one,(3, 7):one,(2, 5):one,(8, 5):one,(1, 2):one,(7, 2):one,(6, 3):one,(0, 4):one,(2, 2):one,(5, 0):one,(6, 4):one,(0, 0):one,(5, 4):one,(1, 4):one,(8, 7):one,(0, 8):one,(6, 5):one,(2, 7):one,(8, 3):one,(7, 0):one,(4, 6):one,(6, 8):one,(0, 6):one,(1, 8):one,(7, 4):one,(2, 4):one})
 
+A = coldict2mat(button_vectors(9))
 
 #Solution given by solver.
-x1 = ...
+x1 = solve(A, b1)
 
 #residual
-r1 = ...
+r1 = b1 - lin_comb_mat_vec_mult(A, x1)
 
 #Is x1 really a solution? Assign True if yes, False if no.
-is_good1 = ...
+is_good1 = lin_comb_mat_vec_mult(A,x1) == b1 and r1 * r1 < 1.0e-20
 
 ## PART 2
 
 b2=Vec(D(9), {(3,4):one, (6,7):one})
 
 #Solution given by solver
-x2 = ...
+x2 = solve(A, b2)
 
 #residual
-r2 = ...
+r2 = b2 - lin_comb_mat_vec_mult(A, x2)
 
 #Is it really a solution? Assign True if yes, False if no.
-is_good2 = ...
+is_good2 = lin_comb_mat_vec_mult(A, x2) == b2 and r2 * r2 < 1.0e-20
 
 
 
