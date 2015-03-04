@@ -8,6 +8,7 @@ from matutil import mat2coldict
 from matutil import mat2rowdict
 from matutil import coldict2mat
 from matutil import rowdict2mat
+from matutil import listlist2mat
 
 ## 1: (Problem 4.17.1) Computing matrix-vector products
 # Please represent your solution vectors as lists.
@@ -228,14 +229,14 @@ def dot_product_vec_mat_mult(v, M):
 # You are also allowed to use the matutil module
 def Mv_mat_mat_mult(A, B):
     assert A.D[1] == B.D[0]
-    return coldict2mat({k:lin_comb_mat_vec_mult(A, vec) for (k,vec) in mat2coldict(B).items()})
+    return coldict2mat({k:A*vec for (k,vec) in mat2coldict(B).items()})
 
 
 
 ## 15: (Problem 4.17.18) Vector-matrix matrix-matrix multiply
 def vM_mat_mat_mult(A, B):
     assert A.D[1] == B.D[0]
-    return rowdict2mat({k:lin_comb_vec_mat_mult(vec, B) for (k, vec) in mat2rowdict(A).items()})
+    return rowdict2mat({k:vec*B for (k, vec) in mat2rowdict(A).items()})
 
 
 
@@ -284,22 +285,20 @@ is_good2 = lin_comb_mat_vec_mult(A, x2) == b2 and r2 * r2 < 1.0e-20
 
 
 ## 17: (Problem 4.17.21) Solving 2x2 linear systems and finding matrix inverse
-solving_systems_x1 = ...
-solving_systems_x2 = ...
-solving_systems_y1 = ...
-solving_systems_y2 = ...
-solving_systems_m = Mat(({0, 1}, {0, 1}), {...})
-solving_systems_a = Mat(({0, 1}, {0, 1}), {...})
-solving_systems_a_times_m = Mat(({0, 1}, {0, 1}), {...})
-solving_systems_m_times_a = Mat(({0, 1}, {0, 1}), {...})
-
-
+solving_systems_x1 = -0.2
+solving_systems_x2 =  0.4
+solving_systems_y1 =  0.8
+solving_systems_y2 = -0.6
+solving_systems_m = listlist2mat([[-0.2, 0.8], [0.4, -0.6]])
+solving_systems_a = listlist2mat([[3, 4], [2, 1]])
+solving_systems_a_times_m = Mv_mat_mat_mult(solving_systems_a, solving_systems_m)
+solving_systems_m_times_a = Mv_mat_mat_mult(solving_systems_m, solving_systems_a)
 
 ## 18: (Problem 4.17.22) Matrix inverse criterion
 # Please write your solutions as booleans (True or False)
 
-are_inverses1 = ...
-are_inverses2 = ...
-are_inverses3 = ...
-are_inverses4 = ...
+are_inverses1 = True
+are_inverses2 = True
+are_inverses3 = False
+are_inverses4 = False
 

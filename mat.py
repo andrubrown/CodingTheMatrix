@@ -128,7 +128,8 @@ def vector_matrix_mul(v, M):
     True
     """
     assert M.D[0] == v.D
-    pass
+    return sum([v[k]*vec for (k, vec) in {row:Vec(M.D[1], {col:M[row,col] for col in M.D[1]}) for row in M.D[0]}.items()])
+
 
 def matrix_vector_mul(M, v):
     """
@@ -147,7 +148,8 @@ def matrix_vector_mul(M, v):
     True
     """
     assert M.D[1] == v.D
-    pass
+    return sum([v[k]*vec for (k, vec) in {col:Vec(M.D[0], {row:M[row,col] for row in M.D[0]}) for col in M.D[1]}.items()])
+                
 
 def matrix_matrix_mul(A, B):
     """
