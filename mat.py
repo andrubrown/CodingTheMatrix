@@ -24,7 +24,10 @@ def equal(A, B):
     True
     """
     assert A.D == B.D
-    return A.D[0] == B.D[0] and A.D[1] == B.D[1] and A.f == B.f
+    for key in A.f.keys()|B.f.keys():
+        if A[key] != B[key]:
+            return False
+    return True
 
 def getitem(M, k):
     """
@@ -80,7 +83,7 @@ def add(A, B):
     True
     """
     assert A.D == B.D
-    pass
+    return Mat(A.D, {key:A[key]+B[key] for key in A.f.keys()|B.f.keys()})
 
 def scalar_mul(M, x):
     """
@@ -94,7 +97,7 @@ def scalar_mul(M, x):
     >>> 0.25*M == Mat(({1,3,5}, {2,4}), {(1,2):1.0, (5,4):0.5, (3,4):0.75})
     True
     """
-    pass
+    return Mat(M.D, {(r,c):M[r,c]*x for (r,c) in M.f.keys()})
 
 def transpose(M):
     """
@@ -108,7 +111,7 @@ def transpose(M):
     >>> M.transpose() == Mt
     True
     """
-    pass
+    return Mat((M.D[1], M.D[0]), {(c,r):M[r,c] for (r,c) in M.f.keys()})
 
 def vector_matrix_mul(v, M):
     """
@@ -128,7 +131,10 @@ def vector_matrix_mul(v, M):
     True
     """
     assert M.D[0] == v.D
-    return sum([v[k]*vec for (k, vec) in {row:Vec(M.D[1], {col:M[row,col] for col in M.D[1]}) for row in M.D[0]}.items()])
+    vec = Vec(M.D[1], {})
+    for (row, col) in M.f.keys():
+        vec[col] = vec[col] + M[row, col] * v[row]
+    return vec
 
 
 def matrix_vector_mul(M, v):
@@ -148,8 +154,10 @@ def matrix_vector_mul(M, v):
     True
     """
     assert M.D[1] == v.D
-    return sum([v[k]*vec for (k, vec) in {col:Vec(M.D[0], {row:M[row,col] for row in M.D[0]}) for col in M.D[1]}.items()])
-                
+    vec = Vec(M.D[0], {})
+    for (row, col) in M.f.keys():
+        vec[row] = vec[row] + M[row, col] * v[col]
+    return vec
 
 def matrix_matrix_mul(A, B):
     """
@@ -175,7 +183,12 @@ def matrix_matrix_mul(A, B):
     True
     """
     assert A.D[1] == B.D[0]
-    pass
+    M = Mat((A.D[0], B.D[1]), {})
+    for (br, bc) in B.f.keys():
+        for row in A.D[0]:
+            if A[row, br] != 0:
+                M[row, bc] = M[row, bc] + A[row, br] * B[br, bc]
+    return M
 
 ################################################################################
 
