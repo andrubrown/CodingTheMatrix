@@ -4,9 +4,11 @@ coursera = 1
 
 from vec import Vec
 from mat import Mat
-from bitutil import bits2mat, str2bits, noise
+from bitutil import bits2mat, str2bits, mat2bits, noise
 from GF2 import one
 from matutil import listlist2mat
+from matutil import coldict2mat
+from matutil import mat2coldict
 from vecutil import zero_vec
 
 
@@ -68,16 +70,16 @@ def find_error_matrix(S):
         >>> find_error_matrix(S) == Mat(({0, 1, 2, 3, 4, 5, 6}, {0, 1, 2, 3}), {(1, 3): 0, (3, 0): 0, (2, 1): 0, (6, 2): 0, (5, 1): one, (0, 3): 0, (4, 0): 0, (1, 2): 0, (3, 3): 0, (6, 3): 0, (5, 0): 0, (2, 2): 0, (4, 1): 0, (1, 1): 0, (3, 2): one, (0, 0): 0, (6, 0): 0, (2, 3): 0, (4, 2): 0, (1, 0): 0, (5, 3): 0, (0, 1): 0, (6, 1): 0, (3, 1): 0, (2, 0): 0, (4, 3): one, (5, 2): 0, (0, 2): 0})
         True
     """
-    pass
+    return coldict2mat({k:find_error(v) for (k,v) in mat2coldict(S).items()})
 
 ## Task 8
 s = "I'm trying to free your mind, Neo. But I can only show you the door. You're the one that has to walk through it."
-P = None
+P = bits2mat(str2bits(s))
 
 ## Task 9
-C = None
-bits_before = None
-bits_after = None
+C = G*P
+bits_before = len(mat2bits(P))
+bits_after = len(mat2bits(C))
 
 
 ## Ungraded Task
@@ -93,5 +95,5 @@ def correct(A):
         >>> correct(A) == Mat(({0, 1, 2, 3, 4, 5, 6}, {1, 2, 3}), {(0, 1): 0, (1, 2): 0, (3, 2): 0, (1, 3): 0, (3, 3): 0, (5, 2): one, (6, 1): 0, (3, 1): 0, (2, 1): 0, (0, 2): one, (6, 3): one, (4, 2): 0, (6, 2): one, (2, 3): 0, (4, 3): 0, (2, 2): 0, (5, 1): 0, (0, 3): one, (4, 1): 0, (1, 1): 0, (5, 3): one})
         True
     """
-    pass
+    return A + find_error_matrix(H*A)
 
