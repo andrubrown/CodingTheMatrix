@@ -6,26 +6,29 @@ from vec import Vec
 from mat import Mat
 from bitutil import bits2mat, str2bits, noise
 from GF2 import one
+from matutil import listlist2mat
+from vecutil import zero_vec
+
 
 ## Task 1
 """ Create an instance of Mat representing the generator matrix G. You can use
 the procedure listlist2mat in the matutil module (be sure to import first).
 Since we are working over GF (2), you should use the value one from the
 GF2 module to represent 1"""
-G = None
+G = listlist2mat([[one, 0, one, one], [one, one, 0, one], [0, 0, 0, one], [one, one, one, 0], [0, 0, one, 0], [0, one, 0, 0], [one, 0, 0, 0]])
 
 ## Task 2
 # Please write your answer as a list. Use one from GF2 and 0 as the elements.
-encoding_1001 = None
+encoding_1001 = [0, 0, one, one, 0, 0, one]
 
 
 ## Task 3
 # Express your answer as an instance of the Mat class.
-R = None
+R = listlist2mat([[0, 0, 0, 0, 0, 0, one], [0, 0, 0, 0, 0, one, 0], [0, 0, 0, 0, one, 0, 0], [0, 0, one, 0, 0, 0, 0]])
 
 ## Task 4
 # Create an instance of Mat representing the check matrix H.
-H = None
+H = listlist2mat([[0, 0, 0, one, one, one, one], [0, one, one, 0, 0, one, one], [one, 0, one, 0,one, 0, one]])
 
 ## Task 5
 def find_error(e):
@@ -42,14 +45,17 @@ def find_error(e):
         >>> find_error(Vec({0,1,2}, {})) == Vec({0,1,2,3,4,5,6}, {})
         True
     """
-    pass
+    v = zero_vec({0,1,2,3,4,5,6})
+    if e != zero_vec(e.D):
+        v[sum([2**(2-k) for k in e.D if e[k] == one])-1] = one
+    return v
 
 ## Task 6
 # Use the Vec class for your answers.
 non_codeword = Vec({0,1,2,3,4,5,6}, {0: one, 1:0, 2:one, 3:one, 4:0, 5:one, 6:one})
-error_vector = Vec(..., ...)
-code_word = Vec(..., ...)
-original = ... # R * code_word
+error_vector = find_error(H*non_codeword)
+code_word = non_codeword + error_vector
+original = R * code_word # R * code_word
 
 
 ## Task 7
