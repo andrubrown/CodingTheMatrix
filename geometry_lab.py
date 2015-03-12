@@ -25,7 +25,7 @@ def identity(labels = {'x','y','u'}):
     >>> identity({'r','g','b'})==Mat(({'r','g','b'},{'r','g','b'}), {('r','r'):1, ('g','g'):1, ('b','b'):1})
     True
     '''
-    pass
+    return Mat((labels, labels), {(label, label):1 for label in labels})
 
 ## Task 2
 def translation(x,y):
@@ -36,7 +36,10 @@ def translation(x,y):
     >>> translation(9,10)==Mat(({'x','y','u'},{'x','y','u'}), {('x','x'):1, ('y','y'):1, ('u','u'):1, ('y','u'):10, ('x','u'):9})
     True
     '''
-    pass
+    m = identity()
+    m[('x','u')] = x
+    m[('y','u')] = y
+    return m
 
 ## Task 3
 def scale(a, b):
@@ -49,7 +52,11 @@ def scale(a, b):
     >>> scale(0,0)*Vec({'x','y','u'}, {'x':1,'y':1,'u':1}) == Vec({'x','y','u'}, {'u':1})
     True
     '''
-    pass
+    m = Mat(({'x','y','u'}, {'x','y','u'}), {})
+    m[('x','x')] = a
+    m[('y','y')] = b
+    m[('u','u')] = 1
+    return m
 
 ## Task 4
 def rotation(angle):
@@ -64,7 +71,13 @@ def rotation(angle):
     >>> normsq(rotation(math.pi/2) * Vec({'u', 'x', 'y'},{'x':3,'y':1,'u':1}) - Vec({'u', 'x', 'y'},{'u': 1, 'x': -1, 'y': 3.0})) < 1e-15
     True
     '''
-    pass
+    m = Mat(({'x','y','u'}, {'x','y','u'}), {})
+    m[('x','x')] = math.cos(angle)
+    m[('x','y')] = -math.sin(angle)
+    m[('y','x')] = math.sin(angle)
+    m[('y','y')] = math.cos(angle)
+    m[('u','u')] = 1
+    return m
 
 ## Task 5
 def rotate_about(x,y,angle):
@@ -74,7 +87,7 @@ def rotate_about(x,y,angle):
     Output:  Corresponding 3x3 rotation matrix.
     It might be helpful to use procedures you already wrote.
     '''
-    pass
+    return translation(x,y)*rotation(angle)*translation(-x,-y)
 
 ## Task 6
 def reflect_y():
@@ -89,7 +102,7 @@ def reflect_y():
     >>> reflect_y()*w == Vec({'x','y','u'},{'u':1})
     True
     '''
-    pass
+    return Mat(({'x','y','u'}, {'x','y','u'}), {('x','x'):-1,('y','y'):1,('u','u'):1})
 
 ## Task 7
 def reflect_x():
@@ -104,7 +117,7 @@ def reflect_x():
     >>> reflect_x()*w == Vec({'x','y','u'},{'u':1})
     True
     '''
-    pass
+    return Mat(({'x','y','u'}, {'x','y','u'}), {('x','x'):1,('y','y'):-1,('u','u'):1})
 
 ## Task 8    
 def scale_color(scale_r,scale_g,scale_b):
@@ -115,7 +128,7 @@ def scale_color(scale_r,scale_g,scale_b):
     >>> scale_color(1,2,3)*Vec({'r','g','b'},{'r':1,'g':2,'b':3}) == Vec({'r','g','b'},{'r':1,'g':4,'b':9})
     True
     '''
-    pass
+    return Mat(({'r','g','b'},{'r','g','b'}), {('r','r'):scale_r,('g','g'):scale_g,('b','b'):scale_b})
 
 ## Task 9
 def grayscale():
@@ -123,7 +136,11 @@ def grayscale():
     Input: None
     Output: 3x3 greyscale matrix.
     '''
-    pass
+    m = Mat(({'r','g','b'},{'r','g','b'}), {})
+    m['r','r'] = m['g','r'] = m['b','r'] = 77.0 / 256
+    m['r','g'] = m['g','g'] = m['b','g'] = 151.0 / 256
+    m['r','b'] = m['g','b'] = m['b','b'] = 28.0 / 256
+    return m
 
 ## Task 10
 def reflect_about(x1, y1, x2, y2):
@@ -137,6 +154,7 @@ def reflect_about(x1, y1, x2, y2):
     >>> normsq(reflect_about(0,0,1,1) * Vec({'x','y','u'}, {'x':1, 'u':1}) - Vec({'x', 'u', 'y'},{'u': 1, 'y': 1})) < 1e-15
     True
     '''
-    pass
+    theta = math.atan2(y2-y1,x2-x1)
+    return translation(x1,y1)*rotation(theta)*reflect_x()*rotation(-theta)*translation(-x1,-y1)
 
 
