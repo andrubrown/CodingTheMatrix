@@ -14,6 +14,7 @@ from The_Basis_problems import is_superfluous
 from The_Basis_problems import vec2rep
 from independence import rank
 from independence import is_independent
+from triangular import triangular_solve
 
 
 ## 1: (Problem 6.7.2) Iterative Exchange Lemma
@@ -325,7 +326,7 @@ def find_matrix_inverse(A):
         >>> find_matrix_inverse(M2) == Mat(M2.D, {(0, 1): one, (1, 0): one, (2, 2): one})
         True
     '''
-    pass
+    return coldict2mat({r:solve(A,Vec(A.D[0],{r:one})) for r in A.D[0]})
 
 
 
@@ -344,5 +345,9 @@ def find_triangular_matrix_inverse(A):
         >>> find_triangular_matrix_inverse(A) == Mat(({0, 1, 2, 3}, {0, 1, 2, 3}), {(0, 1): -0.5, (1, 2): -0.3, (3, 2): 0.0, (0, 0): 1.0, (3, 3): 1.0, (3, 0): 0.0, (3, 1): 0.0, (2, 1): 0.0, (0, 2): -0.05000000000000002, (2, 0): 0.0, (1, 3): -0.87, (2, 3): -0.1, (2, 2): 1.0, (1, 0): 0.0, (0, 3): -3.545, (1, 1): 1.0})
         True
     '''
-    pass
+    L = [None] * len(A.D[0])
+    rows = mat2rowdict(A)
+    for k in A.D[0]:
+        L[k] = rows[k]
+    return coldict2mat({r:triangular_solve(L,list(A.D[0]),Vec(A.D[0],{r:1})) for r in A.D[0]})
 
