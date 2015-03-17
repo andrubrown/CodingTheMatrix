@@ -5,10 +5,15 @@ coursera = 1
 from vecutil import list2vec
 from GF2 import one
 from solver import solve
-from matutil import listlist2mat, coldict2mat
+from matutil import listlist2mat, coldict2mat, mat2coldict, mat2rowdict
 from mat import Mat
 from vec import Vec
-
+from The_Basis_problems import exchange
+from The_Basis_problems import is_independent
+from The_Basis_problems import is_superfluous
+from The_Basis_problems import vec2rep
+from independence import rank
+from independence import is_independent
 
 
 ## 1: (Problem 6.7.2) Iterative Exchange Lemma
@@ -24,8 +29,8 @@ v2 = list2vec([0,3,3])
 # with appropriate lists of 3 vectors
 
 exchange_S0 = [w0, w1, w2]
-exchange_S1 = [...]
-exchange_S2 = [...]
+exchange_S1 = [w0, w1, v2]
+exchange_S2 = [v0, w1, v2]
 exchange_S3 = [v0, v1, v2]
 
 
@@ -40,8 +45,8 @@ v1 = list2vec([one,0,0])
 v2 = list2vec([one,one,0])
 
 exchange_2_S0 = [w0, w1, w2]
-exchange_2_S1 = [...]
-exchange_2_S2 = [...]
+exchange_2_S1 = [w0, w1, v2]
+exchange_2_S2 = [w0, v0, v2]
 exchange_2_S3 = [v0, v1, v2]
 
 
@@ -80,24 +85,32 @@ def morph(S, B):
         >>> sol == [(B[0],S[0]), (B[1],S[2]), (B[2],S[3])] or sol == [(B[0],S[1]), (B[1],S[2]), (B[2],S[3])]
         True
     '''
-    pass
-
+    result = []
+    inserts = []
+    S_prime = S[:]
+    for z in B:
+        w = exchange(S_prime, inserts, z)
+        result = result + [(z,w)]
+        S_prime.remove(w)
+        S_prime.append(z)
+        inserts.append(z)
+    return result
 
 
 ## 4: (Problem 6.7.5) Row and Column Rank Practice
 # Please express each solution as a list of Vecs
 
-row_space_1 = [...]
-col_space_1 = [...]
+row_space_1 = [Vec({0,1,2},{0:1,1:2}), Vec({0,1,2},{1:2,2:1})]
+col_space_1 = [Vec({0,1},{0:1}), Vec({0,1},{1:1})]
 
-row_space_2 = [...]
-col_space_2 = [...]
+row_space_2 = [Vec({0,1,2,3},{0:1,1:4}), Vec({0,1,2,3},{1:2,2:2}), Vec({0,1,2,3},{2:1,3:1})]
+col_space_2 = [Vec({0,1,2},{0:1}), Vec({0,1,2},{1:2,2:1}), Vec({0,1,2},{2:1})]
 
-row_space_3 = [...]
-col_space_3 = [...]
+row_space_3 = [Vec({0},{0:1})]
+col_space_3 = [Vec({0,1,2},{0:1,1:2,2:3})]
 
-row_space_4 = [...]
-col_space_4 = [...]
+row_space_4 = [Vec({0,1},{0:2,1:1}), Vec({0,1},{0:3,1:4})]
+col_space_4 = [Vec({0,1,2},{1:1,2:4}), Vec({0,1,2},{0:1,1:2,2:3})]
 
 
 
@@ -142,8 +155,11 @@ def subset_basis(T):
         >>> subset_basis({c0,c1,c2,c3,c4}) == {c0,c1,c2,c4}
         True
     '''
-    pass
-
+    evicted = set()
+    for v in T:
+        if is_superfluous(T - evicted, v):
+            evicted = evicted | {v}
+    return T - evicted
 
 
 ## 6: () Superset Basis Lemma in Python
@@ -171,7 +187,11 @@ def superset_basis(C, T):
         >>> all(x in [a0,a1,a2,a3] for x in sb)
         True
     '''
-    pass
+    S = C | T
+    for v in T:
+        if is_superfluous(S, v):
+            S.remove(v)
+    return S
 
 
 
@@ -202,7 +222,7 @@ def my_is_independent(L):
         >>> L == [Vec(D,{0: 1}), Vec(D,{1: 1}), Vec(D,{2: 1}), Vec(D,{0: 1, 1: 1, 2: 1}), Vec(D,{0: 1, 1: 1}), Vec(D,{1: 1, 2: 1})]
         True
     '''
-    pass
+    return rank(L) == len(L)
 
 
 
@@ -222,7 +242,7 @@ def my_rank(L):
         >>> my_rank([list2vec(v) for v in [[1,1,1],[2,2,2],[3,3,3],[4,4,4],[123,432,123]]])
         2
     '''
-    pass
+    return len(subset_basis(set(L)))
 
 
 
@@ -242,7 +262,7 @@ def direct_sum_decompose(U_basis, V_basis, w):
         >>> V_basis = [Vec(D,{0: 0, 1: 0, 2: 7, 3: 0, 4: 0, 5: 1}), Vec(D,{0: 0, 1: 0, 2: 15, 3: 0, 4: 0, 5: 2})]
         >>> w = Vec(D,{0: 2, 1: 5, 2: 0, 3: 0, 4: 1, 5: 0})
         >>> (u, v) = direct_sum_decompose(U_basis, V_basis, w)
-        >>> (u + v - w).is_almost_zero()
+        >>> w
         True
         >>> U_matrix = coldict2mat(U_basis)
         >>> V_matrix = coldict2mat(V_basis)
@@ -265,7 +285,10 @@ def direct_sum_decompose(U_basis, V_basis, w):
         >>> w == Vec(D,{0: 2, 1: 5, 2: 0, 3: 0, 4: 1, 5: 0})
         True
     '''
-    pass
+    coords = vec2rep(U_basis+V_basis, w)
+    u = sum([coords[i]*U_basis[i] for i in range(len(U_basis))])
+    v = sum([coords[len(U_basis)+i]*V_basis[i] for i in range(len(V_basis))])
+    return (u,v)
 
 
 
@@ -283,7 +306,7 @@ def is_invertible(M):
     >>> is_invertible(M1)
     False
     '''
-    pass
+    return is_independent(list(mat2coldict(M).values())) and is_independent(list(mat2rowdict(M).values()))
 
 
 
